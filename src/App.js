@@ -6,7 +6,7 @@ class App extends Component {
     super();
     this.state = {
       elements: 0,
-      display: 'none',
+      display: 'block',
       visibleElements: {}
     };
   }
@@ -14,6 +14,7 @@ class App extends Component {
   componentDidMount() {
     const observer = new MutationObserver(
       (mutations) => {
+        console.log('observer');
         const visibleElements = Object.assign({}, this.state.visibleElements);
 
         mutations.forEach( (m) => {
@@ -26,6 +27,18 @@ class App extends Component {
             }
 
             visibleElements[id].display = m.target.style.display;
+            // if(visibleElements[id].display === 'none') {
+            //   visibleElements[id].visible = false;
+            // }
+          }
+          else if(m.type === 'childList') {
+            if(m.addedNodes.length === 0)
+              return;
+
+            const id = m.target.getAttribute('data-id');
+            visibleElements[id] = {
+              display: m.target.style.display
+            };
           }
         } );
 
@@ -87,6 +100,8 @@ class App extends Component {
   }
 
   onWayPoint(visible) {
+    console.log('wayPoint');
+
     return (id, display, reactKey) => {
       const visibleElements = {
         ...this.state.visibleElements,
